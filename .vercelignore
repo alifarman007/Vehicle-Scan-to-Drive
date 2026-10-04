@@ -1,0 +1,5 @@
+# Local tooling and secrets never go to Vercel
+.claude
+.mcp.json
+skills-lock.json
+.env*
