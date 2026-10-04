@@ -49,9 +49,16 @@ export type HomeState = {
   serverNow: number
 }
 
-/** What a scanned code means for the current viewer. */
-export type LookupResult = {
+/** GET /api/lookup?code=… — a driver checks a scanned passenger code. */
+export type PassengerCheck = {
   code: string
-  role: Role
-  name: string
+  passenger: { name: string; idNumber: string | null; phone: string | null }
+  /** Set when this driver already started a trip with this passenger. */
+  existingTripId: string | null
 }
+
+/** POST /api/trips — start a trip (FormData: passengerCode, photo). */
+export type StartTripResult = { trip: Trip; alreadyStarted: boolean }
+
+/** POST /api/trips/end, POST /api/trips/[id]/review, GET /api/trips/[id]. */
+export type TripResult = { trip: Trip }

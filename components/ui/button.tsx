@@ -8,7 +8,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-button hover:bg-primary/90",
+        // Disabled: solid grey, not see-through (it often sits over content in the bottom bar).
+        default:
+          "bg-primary text-primary-foreground shadow-button hover:bg-primary/90 disabled:not-aria-busy:bg-input disabled:not-aria-busy:opacity-100 disabled:not-aria-busy:shadow-none",
         secondary: "border-border bg-card text-foreground shadow-card hover:bg-muted",
         outline: "border-input bg-card text-foreground hover:bg-muted",
         ghost: "text-foreground hover:bg-accent/60",
@@ -17,6 +19,8 @@ const buttonVariants = cva(
         "destructive-soft": "bg-destructive-soft text-destructive-strong hover:bg-destructive-soft/70",
         glass:
           "border-white/15 bg-white/15 text-white backdrop-blur-md hover:bg-white/25 focus-visible:ring-white/40",
+        /** Light button on the dark camera surface. */
+        inverse: "bg-card text-card-foreground shadow-float hover:bg-card/90 focus-visible:ring-white/40",
         link: "h-auto px-0 font-medium text-foreground underline underline-offset-4",
       },
       size: {

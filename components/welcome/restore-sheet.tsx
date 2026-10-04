@@ -1,7 +1,7 @@
 "use client"
 
 import { KeyRound } from "lucide-react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 
 import { CodeInput, validateCodeInput } from "@/components/code-input"
 import { Sheet } from "@/components/sheet"
@@ -19,12 +19,14 @@ export function RestoreSheet({
   open,
   onOpenChange,
   next,
+  inputRef,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   next: string | null
+  /** Owned by the opener, which focuses it within the tap (iPhone keyboard). */
+  inputRef: React.RefObject<HTMLInputElement | null>
 }) {
-  const inputRef = useRef<HTMLInputElement>(null)
   return (
     <Sheet
       open={open}

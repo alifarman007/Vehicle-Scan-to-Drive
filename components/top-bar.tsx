@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
-import { previousPath } from "@/lib/nav-history"
+import { goBackTo } from "@/lib/nav-history"
 import { strings } from "@/lib/strings"
 
 /** Sticky header for inner screens: back arrow, title, optional right slot. */
@@ -33,8 +33,7 @@ export function TopBar({
               // Pop when we came from there (like a native back arrow);
               // otherwise replace, so history never grows from going "back".
               e.preventDefault()
-              if (previousPath() === backHref) router.back()
-              else router.replace(backHref)
+              goBackTo(router, backHref)
             }}
             className="grid size-12 shrink-0 touch-callout-none place-items-center rounded-full transition-colors active:bg-accent"
           >

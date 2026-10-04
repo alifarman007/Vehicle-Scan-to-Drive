@@ -226,7 +226,7 @@ export const strings = {
     safariSteps: {
       title: "Safari on iPhone",
       steps: [
-        "Tap aA in the address bar",
+        "Tap the page menu button next to the address (it may show aA)",
         "Tap Website Settings → Camera → Allow",
         "Come back and tap Try again",
       ],
@@ -249,6 +249,12 @@ export const strings = {
     notACode: `That QR isn’t a ${APP_NAME} code.`,
     scanAgain: "Scan again",
     checking: "Checking…",
+    subtitleDriver: "Ask the passenger to open their Ride Pass",
+    subtitlePassenger: "On the driver’s phone or the card in the car",
+    ending: "Ending your trip…",
+    errorTitle: "Couldn’t use that code",
+    close: "Close scanner",
+    pageTitle: "Scan QR",
   },
 
   start: {
@@ -275,6 +281,17 @@ export const strings = {
     successBody: (name: string) => `Have a safe ride with ${name}.`,
     successCta: "Back to trips",
     alreadyStarted: "This trip is already running.",
+    blockedTitle: "Can’t start this trip",
+    scanAgain: "Scan again",
+    backHome: "Back to trips",
+    photoAdded: "Dashboard photo added",
+    cameraTitle: "Dashboard photo",
+    closeCamera: "Close camera",
+    startedAt: (time: string) => `Started at ${time}`,
+    stepsLabel: "Trip steps",
+    stepDone: "done",
+    captureFailed: "Couldn’t take the photo. Please try again.",
+    previewHint: "Can you read the odometer? If not, retake.",
   },
 
   end: {
@@ -335,11 +352,15 @@ export const strings = {
       wrong_route: "Wrong route",
       ac_not_working: "AC not working",
     } satisfies Record<ReviewTag, string>,
+    tapToRate: "Tap a star to rate",
   },
 
   trip: {
     title: "Trip details",
     privateReview: "Reviews are private to passengers.",
+    inProgress: "Trip in progress",
+    photoClose: "Close photo",
+    photoHint: "Tap the photo to zoom. Tap outside to close.",
   },
 
   q: {
@@ -359,6 +380,8 @@ export const strings = {
     wrongDriverTitle: "Not your driver",
     wrongDriverBody: "This QR belongs to a different driver. Scan the QR in the car you’re in.",
     openApp: `Open ${APP_NAME}`,
+    goToPass: "Open my Ride Pass",
+    yourDriver: "Your driver",
   },
 
   errors: {

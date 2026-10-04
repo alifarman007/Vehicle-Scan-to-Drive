@@ -3,6 +3,7 @@
 import { CarFront, ChevronRight, Pencil, Printer, ScanQrCode } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
+import { flushSync } from "react-dom"
 import { toast } from "sonner"
 
 import { AppHeader } from "@/components/app-header"
@@ -15,6 +16,7 @@ import { PlateChip } from "@/components/plate-chip"
 import { SectionTitle } from "@/components/top-bar"
 import { TripList } from "@/components/trip-list"
 import { useHome } from "@/hooks/use-home"
+import { useWarmScanner } from "@/hooks/use-warm-scanner"
 import { firstName, formatTime } from "@/lib/format"
 import { strings } from "@/lib/strings"
 import type { HomeState, Trip } from "@/lib/types"
@@ -26,10 +28,19 @@ export function DriverHome({ initial, qrValue }: { initial: HomeState; qrValue: 
   // Poll only while waiting for passengers to end their trips.
   const { data, mutate } = useHome(initial, (state) => state.active.length > 0)
   const [vehicleOpen, setVehicleOpen] = useState(false)
+  const vehicleInputRef = useRef<HTMLInputElement>(null)
+
+  function openVehicle() {
+    flushSync(() => setVehicleOpen(true))
+    // Focus within this tap, so iPhone Safari brings up the keyboard.
+    vehicleInputRef.current?.focus()
+  }
   const recent = data.recent.filter((r) => r.status !== "active")
   const hasActive = data.active.length > 0
 
   useTripCompletedToasts(data.active)
+  // Drivers scan to start every trip: have the decoder ready.
+  useWarmScanner(true)
 
   return (
     <>
@@ -41,7 +52,7 @@ export function DriverHome({ initial, qrValue }: { initial: HomeState; qrValue: 
           </h1>
           <button
             type="button"
-            onClick={() => setVehicleOpen(true)}
+            onClick={openVehicle}
             aria-label={strings.header.changeVehicle}
             className="-ml-1.5 mt-1 inline-flex min-h-12 max-w-full items-center gap-2 rounded-xl px-1.5 transition-colors active:bg-accent/70"
           >
@@ -113,6 +124,7 @@ export function DriverHome({ initial, qrValue }: { initial: HomeState; qrValue: 
         open={vehicleOpen}
         onOpenChange={setVehicleOpen}
         current={data.me.vehicleNo}
+        inputRef={vehicleInputRef}
         onSaved={(me) => void mutate({ ...data, me }, { revalidate: false })}
       />
     </>

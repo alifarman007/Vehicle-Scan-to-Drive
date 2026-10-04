@@ -13,6 +13,7 @@ import { RidePass } from "@/components/ride-pass"
 import { SectionTitle } from "@/components/top-bar"
 import { TripList } from "@/components/trip-list"
 import { useHome } from "@/hooks/use-home"
+import { useWarmScanner } from "@/hooks/use-warm-scanner"
 import { firstName, formatTime } from "@/lib/format"
 import { strings } from "@/lib/strings"
 import type { HomeState, Me, Trip } from "@/lib/types"
@@ -27,6 +28,8 @@ export function PassengerHome({ initial, qrValue }: { initial: HomeState; qrValu
   const recent = data.recent.filter((r) => r.status !== "active")
 
   useTripStartedToast(trip)
+  // Passengers only scan to end a trip: warm the decoder once one is running.
+  useWarmScanner(Boolean(trip))
 
   return (
     <>
@@ -61,10 +64,7 @@ function useTripStartedToast(trip: Trip | null) {
   const previous = useRef<string | null | undefined>(undefined)
   const id = trip?.id ?? null
   useEffect(() => {
-    if (previous.current === null && id) {
-      toast.success(t.tripStartedToast)
-      if ("vibrate" in navigator) navigator.vibrate?.(50)
-    }
+    if (previous.current === null && id) toast.success(t.tripStartedToast)
     previous.current = id
   }, [id])
 }

@@ -2,12 +2,14 @@
 
 import { House, RotateCcw, TriangleAlert } from "lucide-react"
 import Link from "next/link"
+import { useTransition } from "react"
 
 import { BottomBar } from "@/components/bottom-bar"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { strings } from "@/lib/strings"
 
 export default function ErrorPage({ retry }: { error: Error & { digest?: string }; retry: () => void }) {
+  const [retrying, startTransition] = useTransition()
   return (
     <main className="flex flex-1 flex-col">
       <div className="flex flex-1 flex-col items-center justify-center px-6 pt-safe text-center">
@@ -19,7 +21,7 @@ export default function ErrorPage({ retry }: { error: Error & { digest?: string 
       </div>
       <BottomBar>
         {/* retry() re-fetches the failed server render; reset() would only re-show it. */}
-        <Button size="xl" onClick={() => retry()}>
+        <Button size="xl" loading={retrying} onClick={() => startTransition(() => retry())}>
           <RotateCcw />
           {strings.common.retry}
         </Button>

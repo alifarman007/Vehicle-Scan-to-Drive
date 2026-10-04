@@ -30,7 +30,7 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="no-print pointer-events-none fixed inset-x-0 top-0 z-[60] flex justify-center pt-[calc(env(safe-area-inset-top)+8px)]"
+      className="no-print pointer-events-none fixed inset-x-0 top-0 z-[100] flex justify-center pt-[calc(env(safe-area-inset-top)+8px)]"
     >
       <div className="flex animate-rise items-center gap-2 rounded-full bg-warning px-3.5 py-2 text-[14px] font-semibold text-warning-foreground shadow-float">
         <WifiOff className="size-4" aria-hidden />

@@ -4,6 +4,7 @@ import { cn } from "cn"
 import { ArrowLeft, ArrowRight, CarFront, ChevronRight, Ticket, type LucideIcon } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
+import { flushSync } from "react-dom"
 import { toast } from "sonner"
 
 import { BottomBar } from "@/components/bottom-bar"
@@ -34,7 +35,14 @@ export function WelcomeFlow({ next }: { next: string | null }) {
   const role: Role | null = roleParam === "driver" || roleParam === "passenger" ? roleParam : null
   const [created, setCreated] = useState<Me | null>(null)
   const [restoreOpen, setRestoreOpen] = useState(false)
+  const restoreInputRef = useRef<HTMLInputElement>(null)
   const pushedRole = useRef(false)
+
+  function openRestore() {
+    flushSync(() => setRestoreOpen(true))
+    // Focus within this tap, so iPhone Safari brings up the keyboard.
+    restoreInputRef.current?.focus()
+  }
 
   function chooseRole(picked: Role) {
     const params = new URLSearchParams(window.location.search)
@@ -87,7 +95,7 @@ export function WelcomeFlow({ next }: { next: string | null }) {
       <div className="mt-auto pt-10 pb-safe text-center">
         <button
           type="button"
-          onClick={() => setRestoreOpen(true)}
+          onClick={openRestore}
           className="min-h-12 rounded-xl px-3 text-[15px] text-muted-foreground transition-colors active:bg-accent/60"
         >
           {t.restoreLink}{" "}
@@ -95,7 +103,7 @@ export function WelcomeFlow({ next }: { next: string | null }) {
         </button>
       </div>
 
-      <RestoreSheet open={restoreOpen} onOpenChange={setRestoreOpen} next={next} />
+      <RestoreSheet open={restoreOpen} onOpenChange={setRestoreOpen} next={next} inputRef={restoreInputRef} />
     </main>
   )
 }
@@ -247,7 +255,7 @@ function DetailsStep({
                 autoCorrect="off"
                 spellCheck={false}
                 enterKeyHint="next"
-                maxLength={24}
+                maxLength={32}
                 className="font-mono font-semibold tracking-wider uppercase placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:normal-case"
                 aria-invalid={errors.vehicleNo ? true : undefined}
                 aria-describedby={errors.vehicleNo ? "vehicleNo-error" : "vehicleNo-hint"}

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
+import { goBackTo, replaceNavigation } from "@/lib/nav-history"
 
 /**
  * A primary action that opens another screen. A real <button> (no long-press
@@ -13,8 +14,15 @@ import { Button } from "@/components/ui/button"
 export function NavButton({
   href,
   replace = false,
+  back = false,
   ...props
-}: Omit<React.ComponentProps<typeof Button>, "onClick" | "loading"> & { href: string; replace?: boolean }) {
+}: Omit<React.ComponentProps<typeof Button>, "onClick" | "loading"> & {
+  href: string
+  /** Swap the current history entry instead of adding one. */
+  replace?: boolean
+  /** Return to `href`: pop when it's the screen underneath, else replace. */
+  back?: boolean
+}) {
   const router = useRouter()
   const [navigating, startTransition] = useTransition()
 
@@ -26,7 +34,15 @@ export function NavButton({
     <Button
       {...props}
       loading={navigating}
-      onClick={() => startTransition(() => (replace ? router.replace(href) : router.push(href)))}
+      onClick={() =>
+        startTransition(() => {
+          if (back) goBackTo(router, href)
+          else if (replace) {
+            replaceNavigation(href)
+            router.replace(href)
+          } else router.push(href)
+        })
+      }
     />
   )
 }

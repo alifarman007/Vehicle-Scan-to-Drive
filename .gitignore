@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Personal Claude Code settings (not shared)
 .claude/settings.local.json
+
+# Copied from node_modules at build time (scripts/copy-zxing-wasm.mjs)
+/public/zxing/

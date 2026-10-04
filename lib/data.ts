@@ -136,8 +136,10 @@ function cleanText(value: unknown, max: number): string {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : ""
 }
 
+export const VEHICLE_NO_MAX = 32
+
 export function cleanVehicleNo(value: unknown): string {
-  return cleanText(value, 24).toUpperCase()
+  return cleanText(value, VEHICLE_NO_MAX).toUpperCase()
 }
 
 function cleanPhone(value: unknown): string | null {
@@ -238,6 +240,23 @@ async function findActiveTripForPassenger(passengerId: string): Promise<TripRow 
     .eq("status", "active")
     .maybeSingle()
   if (error) fail(error, "findActiveTripForPassenger")
+  return data
+}
+
+/** The passenger's trip with this driver that ended in the last few minutes, if any. */
+async function findRecentlyEndedTrip(passengerId: string, driverId: string): Promise<TripRow | null> {
+  const since = new Date(Date.now() - 10 * 60_000).toISOString()
+  const { data, error } = await db()
+    .from("trips")
+    .select(TRIP_COLUMNS)
+    .eq("passenger_id", passengerId)
+    .eq("driver_id", driverId)
+    .eq("status", "completed")
+    .gte("ended_at", since)
+    .order("ended_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) fail(error, "findRecentlyEndedTrip")
   return data
 }
 
@@ -358,7 +377,13 @@ export async function endTrip(passenger: Profile, driverCode: unknown): Promise<
   if (driver.role !== "driver") throw new AppError("expected_driver_code")
 
   const active = await findActiveTripForPassenger(passenger.id)
-  if (!active) throw new AppError("no_active_trip", 409)
+  if (!active) {
+    // A retry after a lost response (patchy mobile data): the trip already
+    // ended moments ago, so hand back that trip instead of an error.
+    const justEnded = await findRecentlyEndedTrip(passenger.id, driver.id)
+    if (justEnded) return justEnded
+    throw new AppError("no_active_trip", 409)
+  }
   if (active.driver_id !== driver.id) throw new AppError("wrong_driver", 403)
 
   const { data, error } = await db()
@@ -416,15 +441,15 @@ export async function submitReview(
   return data
 }
 
-/** Most recent trips for this profile, newest first. */
-export async function listTrips(profile: Profile, limit = RECENT_TRIPS_LIMIT): Promise<TripRow[]> {
+/** Most recent trips for this profile, newest first (optionally only finished ones). */
+export async function listTrips(
+  profile: Profile,
+  { limit = RECENT_TRIPS_LIMIT, completedOnly = false }: { limit?: number; completedOnly?: boolean } = {}
+): Promise<TripRow[]> {
   const column = profile.role === "driver" ? "driver_id" : "passenger_id"
-  const { data, error } = await db()
-    .from("trips")
-    .select(TRIP_COLUMNS)
-    .eq(column, profile.id)
-    .order("started_at", { ascending: false })
-    .limit(limit)
+  let query = db().from("trips").select(TRIP_COLUMNS).eq(column, profile.id)
+  if (completedOnly) query = query.eq("status", "completed")
+  const { data, error } = await query.order("started_at", { ascending: false }).limit(limit)
   if (error) fail(error, "listTrips")
   return data
 }
@@ -453,7 +478,8 @@ export async function getTripPhotoUrl(id: string, viewer: Profile): Promise<stri
 
 /** Everything a home screen needs in one round trip. */
 export async function getHomeState(profile: Profile): Promise<HomeState> {
-  const [active, recent] = await Promise.all([getActiveTrips(profile), listTrips(profile)])
+  // Active trips show on their own above; "Recent trips" is the last 10 finished ones.
+  const [active, recent] = await Promise.all([getActiveTrips(profile), listTrips(profile, { completedOnly: true })])
   return {
     me: toMe(profile),
     active: active.map((row) => toTrip(row, profile)),

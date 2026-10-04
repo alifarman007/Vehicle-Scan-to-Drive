@@ -286,7 +286,8 @@
     -webkit-tap-highlight-color: transparent;
     /* Keep focused fields clear of the sticky header and bottom bar. */
     scroll-padding-top: calc(env(safe-area-inset-top) + 4.5rem);
-    scroll-padding-bottom: 7rem;
+    /* --bottom-bar-h is set by components/bottom-bar.tsx while a bar is on screen. */
+    scroll-padding-bottom: calc(var(--bottom-bar-h, 6rem) + 0.75rem);
     background: var(--background);
   }
   body {
@@ -331,6 +332,11 @@
   }
   .motion-decorative {
     display: none !important;
+  }
+  /* Progress indicators keep moving: a frozen spinner reads as a hung app. */
+  .animate-spin {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
   }
 }
 

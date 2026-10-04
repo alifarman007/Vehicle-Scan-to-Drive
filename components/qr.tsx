@@ -4,8 +4,8 @@ import { Dialog } from "@base-ui/react/dialog"
 import { cn } from "cn"
 import { X } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
-import { useEffect, useEffectEvent } from "react"
 
+import { useCloseWatcher } from "@/hooks/use-close-watcher"
 import { useWakeLock } from "@/hooks/use-wake-lock"
 import { formatCode } from "@/lib/codes"
 import { strings } from "@/lib/strings"
@@ -42,24 +42,6 @@ export function QrImage({
   )
 }
 
-type CloseWatcherLike = { onclose: (() => void) | null; destroy: () => void }
-
-/** Lets the Android Back gesture close an overlay (Chrome's CloseWatcher API). */
-function useCloseWatcher(active: boolean, onClose: () => void) {
-  const handleClose = useEffectEvent(onClose)
-  useEffect(() => {
-    const Watcher = (window as unknown as { CloseWatcher?: new () => CloseWatcherLike }).CloseWatcher
-    if (!active || !Watcher) return
-    let watcher: CloseWatcherLike
-    try {
-      watcher = new Watcher()
-    } catch {
-      return
-    }
-    watcher.onclose = () => handleClose()
-    return () => watcher.destroy()
-  }, [active])
-}
 
 /** Full-screen QR on pure white. Tap anywhere or press Back to close. */
 export function QrFullscreen({

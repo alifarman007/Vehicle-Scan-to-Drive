@@ -1,7 +1,7 @@
 "use client"
 
 import { Check } from "lucide-react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { toast } from "sonner"
 
 import { Sheet } from "@/components/sheet"
@@ -18,13 +18,15 @@ export function VehicleSheet({
   onOpenChange,
   current,
   onSaved,
+  inputRef,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   current: string | null
   onSaved: (me: Me) => void
+  /** Owned by the opener, which focuses it within the tap (iPhone keyboard). */
+  inputRef: React.RefObject<HTMLInputElement | null>
 }) {
-  const inputRef = useRef<HTMLInputElement>(null)
   return (
     <Sheet
       open={open}
@@ -97,7 +99,7 @@ function VehicleForm({
           autoCorrect="off"
           spellCheck={false}
           enterKeyHint="done"
-          maxLength={24}
+          maxLength={32}
           className="font-mono font-semibold tracking-wider uppercase"
         />
         {error ? (
